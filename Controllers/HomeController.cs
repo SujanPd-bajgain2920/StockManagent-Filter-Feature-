@@ -45,21 +45,26 @@ namespace StockManagentSystem.Controllers
             return View(p);
         }
 
+        public IActionResult ProductList()
+        {
+            ViewData["cat"] = new SelectList(_context.Categories, nameof(Category.CatId), nameof(Category.CatName));
+            return View();
+        }
 
+        public IActionResult GetProductList(int CatId)
+        {
+            var product = _context.Products.Where(x=>x.CategoryId==CatId).ToList();
+            return PartialView("_ProductList", product);
+        }
+
+        [HttpGet]
         public IActionResult CreateProduct()
         {
             var categories = _context.Categories.ToList();
 
-            var model = new ProductEdit
-            {
-                Categories = categories.Select(c => new SelectListItem
-                {
-                    Value = c.CatId.ToString(),
-                    Text = c.CatName
-                }).ToList()
-            };
+            ViewData["cat"] = new SelectList(categories,nameof(Category.CatId),nameof(Category.CatName));
 
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -83,7 +88,7 @@ namespace StockManagentSystem.Controllers
                 p.ProImage = fileName;
             }
 
-            p.CategoryId = p.FetchCategoryId;
+         
 
             Product product = new()
             {
